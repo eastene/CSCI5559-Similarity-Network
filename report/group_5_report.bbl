@@ -1,0 +1,10 @@
+\begin{thebibliography}{1}
+
+\bibitem{snf-nat}
+Bo~Wang, Aziz~M Mezlini, Feyyaz Demir, Marc Fiume, Zhuowen Tu, Michael Brudno,
+  Benjamin Haibe-Kains, and Anna Goldenberg.
+\newblock Similarity network fusion for aggregating data types on a genomic
+  scale.
+\newblock {\em Nat Meth}, 11(3):333--337, 03 2014.
+
+\end{thebibliography}
