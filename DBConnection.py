@@ -29,6 +29,7 @@ def addAttributes(pat_id, attributes):
       tx.run("MATCH (n:Patient) WHERE n.id={pid} "
              "SET n = $atts", pid=pat_id, atts=attributes)
 
+# quick testing 
 allocatePatient(1)
 addAttributes(1, {'name':'bob','age':23})
 session.close()
