@@ -6,22 +6,23 @@ from neo4j.v1 import GraphDatabase, basic_auth
 class DBConnection:
 
   def __init__(self):
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "dba"))
-    self.session = driver.session()
+    self.driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "dba"))
+    self.session = self.driver.session()
 
   def __del__(self):
+    self.driver.close()
     self.session.close()
 
-  def allocatePatient(self, pat_id):
+  def allocatePatient(self, attributes):
     '''
-    create a new, empty patient node
-    :param pat_id: patient id, primary key
+    create a new patient node with initial data type
+    :param attributes: dictionary of (name -> value) pairs for all attributes (must contain patient id as primary key)
     :return: none
     '''
     with self.session.begin_transaction() as tx:
       # create the patient using the given ID
       tx.run("CREATE (n:Patient) "
-             "SET n.id={pid}",{"pid": pat_id})
+             "SET n = $attrs", {"attrs": attributes})
       tx.success = True
 
   def addAttributes(self, pat_id, attributes):
@@ -64,3 +65,20 @@ class DBConnection:
       # find the patients to relate using the given IDs
       tx.run("MATCH (n:Patient, m:Patient) WHERE n.id={pid1} AND m.id={pid2}"
                "SET n-[r:Similarity magnitude:{mag}]-m", pid1=from_id, pid2=to_id, mag=measure)
+
+  def getPatient(self, pat_id):
+    '''
+    return a single Patient node
+    :param pat_id: patient id, primary key
+    :return: single patient node
+    '''
+
+  #def getPatientsFrom(self, ):
+
+  def normalizeFeatures(self):
+    with self.session.begin_transaction() as tx:
+      tx.run("MATCH (n) "
+             "SET keys(n) = (n - avg(n[label])/stDev(n[label])")
+
+conn = DBConnection()
+conn.normalizeFeatures()
