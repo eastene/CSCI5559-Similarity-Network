@@ -21,7 +21,7 @@
 \section*{Related Works}
 \quad SNF provides a framework for discovering mechanisms responsible for diseases, clustering or sub-typing samples (patients), and predicting outcomes (survival). There are other strategies that attempt to achieve one or more of these goals, but each has drawbacks that prevent it from working with the same success as SNF.\\
 \subsection*{Independent Analysis}
-\quad Although possible to analyze each attribute independently, this is time intensive and inconsistent \cite.
+\quad Although possible to analyze each attribute independently, this is time intensive and inconsistent.
 \subsection*{Feature Concatenation}
 \quad Another strategy is to simply concatenate each data type into a single feature list before performing traditional clustering techniques. However, when data is producing a low signal to noise ratio, lengthening the feature list only serves to exacerbate the problem. 
 \subsection*{Gene Preselection}
@@ -29,7 +29,7 @@
 
 \section*{Solution}
 \quad Our method is based on the SNF implementation method described in \cite{snf-nat}. The original implementation written by the authors of the paper is available at http://compbio.cs.toronto.edu/SNF/SNF/Software.html and is provided in both MATLAB and R formats, each containing the necessary code to build the network and provide some statistical analysis on the result. Data for five different diseases, each spanning three data types for around 200 patients, was also supplied on the website and is the data used by the authors of \cite{snf-nat}.\\
-\quad Our work is an attempt to expand the SNF for use with higher volumes of data by implementing the network as a graph database.\\
+\quad Our work is an attempt to expand the SNF for use with higher volumes of data by implementing the network as a graph database. As more and more data is becoming available, the SNF must be able to adapt to much larger sample sizes or conversely, to generate the transpose SNF where features are clustered rather than samples.\\
 
 \section*{Results}
 
