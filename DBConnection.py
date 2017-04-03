@@ -34,7 +34,7 @@ class DBConnection:
     '''
     with self.session.begin_transaction() as tx:
       # find the patient using the given ID and add the attribute(s)
-      tx.run("MATCH (n:Patient) WHERE n.id={pid} "
+      tx.run("MATCH (n:Patient) WHERE n.Patient_ID={pid} "
                "SET n = $atts", pid=pat_id, atts=attributes)
 
   def updateAttribute(self, pat_id, att_name, val):
@@ -49,7 +49,7 @@ class DBConnection:
       # create the attribute parameter
       att_param = {att_name: val}
       # find the patient using the given ID and update the attribute
-      tx.run("MATCH (n:Patient) WHERE n.id={pid} "
+      tx.run("MATCH (n:Patient) WHERE n.Patient_ID={pid} "
                "SET n = $att", pid=pat_id, att=att_param)
 
   def addRelation(self, from_id, to_id, measure):
@@ -63,22 +63,27 @@ class DBConnection:
     '''
     with self.session.begin_transaction() as tx:
       # find the patients to relate using the given IDs
-      tx.run("MATCH (n:Patient, m:Patient) WHERE n.id={pid1} AND m.id={pid2}"
-               "SET n-[r:Similarity magnitude:{mag}]-m", pid1=from_id, pid2=to_id, mag=measure)
+      tx.run("MATCH (n:Patient), (m:Patient) "
+               "WHERE n.Patient_ID={pid1} AND m.Patient_ID={pid2} "
+               "CREATE (n)-[r:Similarity  { magnitude: {mag} }]->(m) "
+               "RETURN r", pid1=from_id, pid2=to_id, mag=measure)
+      tx.success = True
 
   def getPatient(self, pat_id):
     '''
     return a single Patient node
     :param pat_id: patient id, primary key
-    :return: single patient node
+    :return: single patient node as a bolt record
     '''
+    with self.session.begin_transaction() as tx:
+      # find the patients to relate using the given IDs
+      record = tx.run("MATCH (n:Patient) WHERE n.Patient_ID={pid} RETURN n", pid=pat_id).single()
+      return record[0]
 
   #def getPatientsFrom(self, ):
 
-  def normalizeFeatures(self):
+  def getPatientIDList(self):
     with self.session.begin_transaction() as tx:
-      tx.run("MATCH (n) "
-             "SET keys(n) = (n - avg(n[label])/stDev(n[label])")
-
-conn = DBConnection()
-conn.normalizeFeatures()
+      # find the patients to relate using the given IDs
+      results = tx.run("MATCH (n:Patient) RETURN n.Patient_ID").records()
+      return list(results)

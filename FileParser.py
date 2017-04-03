@@ -23,6 +23,7 @@ class FileParser:
                 # create the node for the patient with the given attributes
                 self.conn.allocatePatient(row)
 
+
     def parseNewDataType(self, fileName):
         with open(fileName, 'r') as f_in:
             # read csv in Dictionary format
