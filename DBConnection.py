@@ -6,7 +6,7 @@ from neo4j.v1 import GraphDatabase, basic_auth
 class DBConnection:
 
   def __init__(self):
-    self.driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "dba"))
+    self.driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "Project"))
     self.session = self.driver.session()
 
   def __del__(self):
@@ -35,7 +35,7 @@ class DBConnection:
     with self.session.begin_transaction() as tx:
       # find the patient using the given ID and add the attribute(s)
       tx.run("MATCH (n:Patient) WHERE n.Patient_ID={pid} "
-               "SET n = $atts", pid=pat_id, atts=attributes)
+               "SET n += $atts", pid=pat_id, atts=attributes)
 
   def updateAttribute(self, pat_id, att_name, val):
     '''
@@ -50,7 +50,7 @@ class DBConnection:
       att_param = {att_name: val}
       # find the patient using the given ID and update the attribute
       tx.run("MATCH (n:Patient) WHERE n.Patient_ID={pid} "
-               "SET n = $att", pid=pat_id, att=att_param)
+               "SET n += $att", pid=pat_id, att=att_param)
 
   def addRelation(self, from_id, to_id, measure):
     '''
@@ -78,6 +78,7 @@ class DBConnection:
     with self.session.begin_transaction() as tx:
       # find the patients to relate using the given IDs
       record = tx.run("MATCH (n:Patient) WHERE n.Patient_ID={pid} RETURN n", pid=pat_id).single()
+      print(record) 
       return record[0]
 
   #def getPatientsFrom(self, ):
@@ -86,4 +87,8 @@ class DBConnection:
     with self.session.begin_transaction() as tx:
       # find the patients to relate using the given IDs
       results = tx.run("MATCH (n:Patient) RETURN n.Patient_ID").records()
-      return list(results)
+    for x in results:
+       print(x,"\n")
+    #print("\n")
+      #print(list(results))
+    return list(results)
