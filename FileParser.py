@@ -4,6 +4,7 @@
 import DBConnection
 import csv
 
+
 class FileParser:
 
     def __init__(self):
