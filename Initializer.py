@@ -5,7 +5,7 @@ import argparse, sys
 
 def main():
     f_parser = FileParser.FileParser()
-    parser = argparse.ArgumentParser(description="Generate SNF using data provided in input files")
+    #parser = argparse.ArgumentParser(description="Generate SNF using data provided in input files")
     #parser.add_argument('--create', action='create_true', required=False)
 
     # grab first file or error

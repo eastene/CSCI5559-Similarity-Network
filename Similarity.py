@@ -10,9 +10,10 @@ def distance(i, j):
     :return: value of distance between nodes i and j
     '''
     dist = 0
-    # start at 1 to skip patient ID
-    for val in range(1, len(i)):
-        dist += (float(i[val]) - float(j[val])) ** 2
+    # compare each named attribute in i and j and add to the distance
+    for val in i.keys():
+        if val != "Patient_ID" and val in j:
+            dist += (float(i[val]) - float(j[val])) ** 2
     return math.sqrt(dist)
 
 def avgDistToNeighbor(i):

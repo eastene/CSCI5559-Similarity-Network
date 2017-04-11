@@ -7,7 +7,7 @@ from neo4j.v1 import GraphDatabase, basic_auth
 class DBConnection:
 
     def __init__(self):
-        self.driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "Project"))
+        self.driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "dba"))
         self.session = self.driver.session()
 
     def __del__(self):
@@ -69,6 +69,22 @@ class DBConnection:
                 "RETURN r", pid1=from_id, pid2=to_id, mag=measure)
             tx.success = True
 
+    def addRelationsFromBuffer(self, buffer):
+        """
+        create relations in bulk
+        :param buffer: iterable container of relation tuples <from, to, value>
+        :return: none
+        """
+        with self.session.begin_transaction() as tx:
+            # find the patients to relate using the given IDs
+            for rel in buffer:
+                tx.run("MATCH (n:Patient), (m:Patient) "
+                       "WHERE n.Patient_ID={pid1} AND m.Patient_ID={pid2} "
+                       "CREATE (n)-[r:Similarity  { magnitude: {mag} }]->(m) "
+                       "RETURN r", pid1=rel[0], pid2=rel[1], mag=rel[2])
+            tx.success = True
+
+
     def getPatient(self, pat_id):
         """
         return a single Patient node
@@ -78,7 +94,7 @@ class DBConnection:
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
             record = tx.run("MATCH (n:Patient) WHERE n.Patient_ID={pid} RETURN n", pid=pat_id).single()
-            print(record)
+            # return property list of single patient
             return record[0]
 
   #def getPatientsFrom(self, ):
@@ -91,8 +107,8 @@ class DBConnection:
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
             results = tx.run("MATCH (n:Patient) RETURN n.Patient_ID").records()
-            for x in results:
-                print(x,"\n")
+            #for x in results:
+                #print(x,"\n")
             #print("\n")
             #print(list(results))
             return list(results)
