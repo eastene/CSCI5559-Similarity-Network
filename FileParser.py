@@ -15,20 +15,32 @@ class FileParser:
         # close db connection
         del self.conn
 
-    def parseCreatorFile(self, fileName):
+    def parseCreatorFile(self, fileName, delimit):
+        """
+        Parse first data type to create the nodes for the graph
+        :param fileName: file from which to read (.csv)
+        :param delimit: delimiter of file
+        :return: none
+        """
         with open(fileName, 'r') as f_in:
             # read csv in Dictionary format
-            reader = csv.DictReader(f_in)
+            reader = csv.DictReader(f_in, delimiter=delimit)
             # read in each node
             for row in reader:
                 # create the node for the patient with the given attributes
                 self.conn.allocatePatient(row)
 
 
-    def parseNewDataType(self, fileName):
+    def parseNewDataType(self, fileName, delimit):
+        """
+        Parse additional data types for existing nodes in the graph
+        :param fileName: file from which to read (.csv)
+        :param delimit: delimiter of file
+        :return: none
+        """
         with open(fileName, 'r') as f_in:
             # read csv in Dictionary format
-            reader = csv.DictReader(f_in)
+            reader = csv.DictReader(f_in, delimiter=delimit)
             # read in new data type for each node
             for row in reader:
                 # extract patient ID to identify patient, but do not add new id

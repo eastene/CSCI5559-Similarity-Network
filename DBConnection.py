@@ -97,7 +97,20 @@ class DBConnection:
             # return property list of single patient
             return record[0]
 
-  #def getPatientsFrom(self, ):
+    def getPatientsRange(self, from_id, to_id):
+        """
+        return patient nodes in the range of patient ID's
+        :param from_id: first ID in range
+        :param to_id: last ID in range
+        :return: all nodes in range
+        """
+        with self.session.begin_transaction() as tx:
+            # find the patients to relate using the given IDs
+            record = tx.run("MATCH (n:Patient) "
+                            "WHERE n.Patient_ID>={pid_1} AND n.Patient_ID<={pid_2} "
+                            "RETURN n", pid_1=from_id, pid_2=to_id)
+            # return all patients
+            return record
 
     def getPatientIDList(self):
         """
