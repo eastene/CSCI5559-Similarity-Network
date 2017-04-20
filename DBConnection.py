@@ -119,9 +119,35 @@ class DBConnection:
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            results = tx.run("MATCH (n:Patient) RETURN n.Patient_ID").records()
-            #for x in results:
-                #print(x,"\n")
-            #print("\n")
-            #print(list(results))
+            results = tx.run("MATCH (n:Patient) RETURN n.Patient_ID ORDER BY n.Patient_ID").records()
             return list(results)
+
+    def getPatientRelations(self, pat_id):
+        """
+        
+        :return: 
+        """
+        with self.session.begin_transaction() as tx:
+            # find the patients to relate using the given IDs
+            results = tx.run("MATCH (n:Patient {Patient_ID : {pid} })-[r]-(m:Patient)"
+                             " RETURN r", pid=pat_id).records()
+            return list(results)
+
+    def getRelation(self, from_id, to_id):
+        """
+
+        :return: 
+        """
+        with self.session.begin_transaction() as tx:
+            # find the patients to relate using the given IDs
+            results = tx.run("MATCH (n:Patient {Patient_ID : {pid1} })-[r]-(m:Patient {Patient_ID : {pid2} })"
+                             " RETURN r", pid1=from_id, pid2=to_id).single()
+            return results
+
+    def updateRelation(self, from_id, to_id, val):
+        with self.session.begin_transaction() as tx:
+            # find the patients to relate using the given IDs
+            results = tx.run("MATCH (n:Patient {Patient_ID : {pid1} })-[r]-(m:Patient {Patient_ID : {pid2} })"
+                             " SET r.magnitude = {value}"
+                             " RETURN r", pid1=from_id, pid2=to_id, value=val)
+            tx.success = True
