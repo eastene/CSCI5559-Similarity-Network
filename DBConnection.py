@@ -99,38 +99,40 @@ class DBConnection:
 
     def getPatientsRange(self, from_id, to_id):
         """
-        return patient nodes in the range of patient ID's
+        return patient nodes in the range of record ID's
         :param from_id: first ID in range
         :param to_id: last ID in range
         :return: all nodes in range
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            record = tx.run("MATCH (n:Patient) "
-                            "WHERE n.Patient_ID>={pid_1} AND n.Patient_ID<={pid_2} "
-                            "RETURN n", pid_1=from_id, pid_2=to_id)
+            records = tx.run("MATCH (n:Patient) "
+                            "WHERE ID(n)>={id_1} AND ID(n)<={id_2} "
+                            "RETURN n", id_1=from_id, id_2=to_id)
             # return all patients
-            return record
+            return list(records)
 
-    def getPatientIDList(self):
+    def getSortedIDList(self):
         """
-        get the list of all patients by Patient_ID in the database
-        :return: list of strings (Patient_ID's)
+        get the list of all patients by record ID's in the database
+        :return: list of strings (ID's)
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            results = tx.run("MATCH (n:Patient) RETURN n.Patient_ID ORDER BY n.Patient_ID").records()
+            results = tx.run("MATCH (n:Patient) RETURN ID(n) ORDER BY ID(n)").records()
             return list(results)
 
     def getPatientRelations(self, pat_id):
         """
-        
-        :return: 
+        return all relations associated with a patient
+        :param pat_id: patient's id, primary key
+        :return: list of records of relations
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            results = tx.run("MATCH (n:Patient {Patient_ID : {pid} })-[r]-(m:Patient)"
-                             " RETURN r", pid=pat_id).records()
+            results = tx.run("MATCH (n:Patient)-[r]-(m:Patient)"
+                             " WHERE ID(n) = {id}"
+                             " RETURN ID(m), r.magnitude ORDER BY ID(m)", id=pat_id).records()
             return list(results)
 
     def getRelation(self, from_id, to_id):
@@ -145,6 +147,13 @@ class DBConnection:
             return results
 
     def updateRelation(self, from_id, to_id, val):
+        """
+        update a single relation in the database
+        :param from_id: id for start of relation
+        :param to_id: id for end of relation
+        :param val: new value of relation
+        :return: none
+        """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
             results = tx.run("MATCH (n:Patient {Patient_ID : {pid1} })-[r]-(m:Patient {Patient_ID : {pid2} })"

@@ -1,11 +1,13 @@
 # Parses and uploads data to the DB, then calls the appropriate methods to generate the SNF
 
-import FileParser
-import argparse, sys
+import FileParser, Network
+import argparse, sys, time
 
 def main():
+    t1 = time.time()
     # file parser
     f_parser = FileParser.FileParser()
+    network = Network.Network()
 
     # command line argument parser
     parser = argparse.ArgumentParser(description="Generate SNF using data provided in input files")
@@ -29,6 +31,11 @@ def main():
     if args.additional:
         for data_type in args.additional:
             f_parser.parseNewDataType(data_type, args.delimiter)
+
+    network.computeDistances()
+    network.computeSimilarity()
+
+    print("Delta: " + str((time.time() - t1) * 1000) + "ms")
 
 if __name__ == '__main__':
     main()

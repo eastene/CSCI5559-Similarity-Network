@@ -7,6 +7,8 @@ import csv
 
 class FileParser:
 
+    files_read = 0
+
     def __init__(self):
         # establish connection to db
         self.conn = DBConnection.DBConnection()
@@ -23,12 +25,15 @@ class FileParser:
         :return: none
         """
         with open(fileName, 'r') as f_in:
+            print("Parsing File 1 ...", end=' ')
             # read csv in Dictionary format
             reader = csv.DictReader(f_in, delimiter=delimiter)
             # read in each node
             for row in reader:
                 # create the node for the patient with the given attributes
                 self.conn.allocatePatient(row)
+            self.files_read += 1
+            print("Done.")
 
     def parseNewDataType(self, fileName, delimiter):
         """
@@ -38,6 +43,7 @@ class FileParser:
         :return: none
         """
         with open(fileName, 'r') as f_in:
+            print("Parsing File " + str(self.files_read) + " ...", end=' ')
             # read csv in Dictionary format
             reader = csv.DictReader(f_in, delimiter=delimiter)
             # read in new data type for each node
@@ -47,3 +53,5 @@ class FileParser:
                 del row['Patient_ID']
                 # add new attributes
                 self.conn.addAttributes(id, row)
+                self.files_read += 1
+            print("Done.")

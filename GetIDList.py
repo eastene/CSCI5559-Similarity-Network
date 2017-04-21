@@ -5,6 +5,6 @@ class getList:
         	self.conn1 = DBConnection.DBConnection()
 	
 	def GetId(self):
-		self.conn1.getPatientIDList()
+		self.conn1.getSortedPatientIDList()
 t = getList()
 t.GetId()
