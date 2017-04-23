@@ -14,16 +14,17 @@ class DBConnection:
         self.driver.close()
         self.session.close()
 
-    def allocatePatient(self, attributes):
+    def allocatePatients(self, patients):
         """create a new patient node with initial data type
         :param attributes: dictionary of (name -> value) pairs for all attributes (must contain patient id as primary key)
         :return: none
         """
         with self.session.begin_transaction() as tx:
-            # create the patient using the given ID
-            tx.run("CREATE (n:Patient) "
-                "SET n = $attrs", {"attrs": attributes})
-            tx.success = True
+            for attributes in patients:
+                # create the patient using the given ID
+                tx.run("CREATE (n:Patient) "
+                    "SET n = $attrs", {"attrs": attributes})
+            tx.commit()
 
     def addAttributes(self, pat_id, attributes):
         """

@@ -29,9 +29,7 @@ class FileParser:
             # read csv in Dictionary format
             reader = csv.DictReader(f_in, delimiter=delimiter)
             # read in each node
-            for row in reader:
-                # create the node for the patient with the given attributes
-                self.conn.allocatePatient(row)
+            self.conn.allocatePatients(reader)
             self.files_read += 1
             print("Done.")
 
