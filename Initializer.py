@@ -32,7 +32,6 @@ def main():
         for data_type in args.additional:
             f_parser.parseNewDataType(data_type, args.delimiter)
 
-    network.computeDistances()
     network.computeSimilarity()
 
     print("Delta: " + str((time.time() - t1) * 1000) + "ms")

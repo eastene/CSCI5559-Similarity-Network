@@ -4,21 +4,32 @@ import math
 
 
 def distance(i, j):
-    '''
-    Squared Euclidean distance between two nodes
-    :param i: node i's feature list
-    :param j: node j's feature list
-    :return: value of distance between nodes i and j
-    '''
+    # start at 1 to skip patient id
     dist = 0
-    # compare each named attribute in i and j and add to the distance
-    for val in i:
-        if val != "Patient_ID" and val in j:
-            dist += (float(i[val]) - float(j[val])) ** 2
+    for x in range(1, len(i)):
+        dist += math.pow(float(i[x]) - float(j[x]), 2)
     return math.sqrt(dist)
 
 
+def initialDistance(patients):
+    """
+    euclidean distance between all patients in network
+    :param patients: patient data
+    :return: distance matrix (upper triangular)
+    """
+    distances = [[0 for i in range(len(patients))] for j in range(len(patients))]
+    for i in range(len(patients)):
+        for j in range(i + 1, len(patients)):
+            distances[i][j] = distance(patients[i], patients[j])
+    return distances
+
+
 def measure(distances):
+    """
+    compute the similarity between all nodes
+    :param distances: initial distances
+    :return: similarity matrix (upper triangular)
+    """
     # average each row
     means = [sum(x) / len(x) for x in distances]
     mu = 0.5

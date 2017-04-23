@@ -1,9 +1,8 @@
 # Parse files for data used to create SNF
 # Potentailly add support for more file types
 
-import DBConnection
+import DBConnection, Similarity
 import csv
-
 
 class FileParser:
 
@@ -30,6 +29,17 @@ class FileParser:
             reader = csv.DictReader(f_in, delimiter=delimiter)
             # read in each node
             self.conn.allocatePatients(reader)
+            f_in.seek(0)
+            # new reader to measure the distances
+            print("Done.")
+            print("Calculating Distances ...",end=" ")
+            reader2 = csv.reader(f_in,delimiter=delimiter)
+            # skip headers
+            next(reader2)
+            patients = [row for row in reader2 if row != []]
+            distances = Similarity.initialDistance(patients)
+            ids = [row[0] for row in patients]
+            self.conn.addRelationsFromBuffer(ids, distances, "Similarity 1")
             self.files_read += 1
             print("Done.")
 
@@ -52,4 +62,15 @@ class FileParser:
                 # add new attributes
                 self.conn.addAttributes(id, row)
                 self.files_read += 1
+            print("Done.")
+            print("Calculating Distances for Data Type " + str(self.files_read) + " ...", end=" ")
+            reader2 = csv.reader(f_in, delimiter=delimiter)
+            # skip headers
+            next(reader2)
+            patients = [row for row in reader2 if row != []]
+            distances = Similarity.initialDistance(patients)
+            ids = [row[0] for row in patients]
+            # write initial distances
+            self.conn.addRelationsFromBuffer(ids, distances, "Similarity " + str(self.files_read))
+            self.files_read += 1
             print("Done.")

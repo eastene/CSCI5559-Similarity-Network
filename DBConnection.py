@@ -69,7 +69,7 @@ class DBConnection:
                 "CREATE (n)-[r:Similarity  { magnitude: {mag} }]->(m) "
                 "RETURN r", pid1=from_id, pid2=to_id, mag=measure)
 
-    def addRelationsFromBuffer(self, buffer):
+    def addRelationsFromBuffer(self, ids, buffer, name):
         """
         create relations in bulk
         :param buffer: iterable container of relation tuples <from, to, value>
@@ -77,11 +77,12 @@ class DBConnection:
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            for rel in buffer:
-                tx.run("MATCH (n:Patient), (m:Patient) "
-                       "WHERE n.Patient_ID={pid1} AND m.Patient_ID={pid2} "
-                       "CREATE (n)-[r:Similarity  { magnitude: {mag} }]->(m) "
-                       "RETURN r", pid1=rel[0], pid2=rel[1], mag=rel[2])
+            for i in range(len(ids)):
+                for j in range(i + 1, len(ids)):
+                    tx.run("MATCH (n:Patient), (m:Patient) "
+                           "WHERE n.Patient_ID={pid1} AND m.Patient_ID={pid2} "
+                           "CREATE (n)-[r:Similarity  { magnitude : {mag} }]->(m) "
+                           "RETURN r", pid1=ids[i], pid2=ids[j], mag=buffer[i][j])
             tx.commit()
 
 
@@ -145,8 +146,8 @@ class DBConnection:
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            for i in range(len(ids) - 1):
-                for j in range(i+1, len(ids) - 1):
+            for i in range(len(ids)):
+                for j in range(i+1, len(ids)):
                     tx.run("MATCH (n:Patient)-[r]-(m:Patient)"
                            " WHERE ID(n) = {pid1} AND ID(m) = {pid2}"
                            " SET r.magnitude = {value}"
