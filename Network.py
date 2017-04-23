@@ -1,7 +1,6 @@
 # Interface for the SNF
 
 import DBConnection, Similarity
-import numpy
 
 
 class Network:

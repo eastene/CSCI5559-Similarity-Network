@@ -145,14 +145,12 @@ class DBConnection:
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            for i in range(len(ids)):
-                for j in range(i+1, len(ids)):
-                    try:
-                        tx.run("MATCH (n:Patient {Patient_ID : {pid1} })-[r]-(m:Patient {Patient_ID : {pid2} })"
-                                 " SET r.magnitude = {value}"
-                                 " RETURN r", pid1=ids[i][0], pid2=ids[j][0], value=W[i][j - 1])
-                        # using j - 1 since each row in W excludes node i's relation to itself and is therefore always
-                        # one index behind the id list
-                    except IndexError:
-                        print(str(i) + " " + str(j))
+            for i in range(len(ids) - 1):
+                for j in range(i+1, len(ids) - 1):
+                    tx.run("MATCH (n:Patient)-[r]-(m:Patient)"
+                             " WHERE ID(n) = {pid1} AND ID(m) = {pid2}"
+                             " SET r.magnitude = {value}"
+                             " RETURN r", pid1=ids[i][0], pid2=ids[j][0], value=W[i][j])
+                    # using j - 1 since each row in W excludes node i's relation to itself and is therefore always
+                    # one index behind the id list
             tx.commit()

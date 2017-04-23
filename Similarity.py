@@ -2,6 +2,7 @@
 
 import math
 
+
 def distance(i, j):
     '''
     Squared Euclidean distance between two nodes
@@ -16,25 +17,17 @@ def distance(i, j):
             dist += (float(i[val]) - float(j[val])) ** 2
     return math.sqrt(dist)
 
-def avgDistToNeighbor(i):
-    '''
-    Avg. euclidean distance between node i and its neighbors
-    :param i: 
-    :return: 
-    '''
 
 def measure(distances):
-
     # average each row
     means = [sum(x) / len(x) for x in distances]
     mu = 0.5
-    row = []
-    W = []
+    W = [[0 for i in range(len(distances))] for j in range(len(distances))]
+
     # compute similarities for each relation i -> j
-    for i in range(len(distances)):
+    for i in range(len(distances) - 1):
         # each row is 1 less than total nodes since a node is not related to itself
         for j in range(i + 1, len(distances) - 1):
             epsilon = (means[i] + means[j] + distances[i][j]) / 3
-            row.append(math.exp(-(math.pow(distances[i][j], 2)) / (mu * epsilon)))
-        W.append(row)
+            W[i][j] = math.exp(-math.pow(distances[i][j], 2) / (mu * epsilon))
     return W
