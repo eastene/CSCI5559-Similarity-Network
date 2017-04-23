@@ -1,7 +1,7 @@
 # Interface for the SNF
 
 import DBConnection, Similarity
-import math
+import numpy
 
 
 class Network:
@@ -18,8 +18,8 @@ class Network:
         :param k: number of nearest neighbors to consider (default = 20)
         :return: none
         '''
-        # list to hold all distances, (possibly used later in finding the average dist to the k nearest)
         print("Computing initial distances ...", end=" ")
+        # list to hold all distances, (possibly used later in finding the average dist to the k nearest)
         neighbor_dist = []
         # get list of patient ids
         ids = self.conn.getSortedIDList()
@@ -37,6 +37,8 @@ class Network:
                     dist = Similarity.distance(node_i, node_j)
                     neighbor_dist.append((node_i['Patient_ID'], node_j['Patient_ID'], dist))
         # add the relations in bulk
+        print("Done.")
+        print("Writing Distances ...", end=" ")
         self.conn.addRelationsFromBuffer(neighbor_dist)
         print("Done.")
 
@@ -46,18 +48,19 @@ class Network:
         :return: none
         """
         print("Computing similarities ...", end=" ")
+        # 2d array to hold all distances
+        distances = []
+
         # get list of patient ids
         nodes = self.conn.getSortedIDList()
         for i in range(len(nodes)):
             # compute average distance to neighbors for node i
             xi_N = self.conn.getPatientRelations(nodes[i][0])
+            distances.append([x[1] for x in xi_N])
 
-            for j in range(i+1, len(nodes)):
-                # compute average distance to neighbors for node j
-                xj_N = self.conn.getPatientRelations(nodes[j][0])
-                # distance between the two nodes already returned in xi_N
-                p_i_j = xi_N[j - 1][1]
-                # update relation
-                self.conn.updateRelation(nodes[i][0], nodes[j][0], Similarity.measure(xi_N, xj_N, p_i_j))
+        W = Similarity.measure(distances)
 
+        print("Done.")
+        print("Writing Similarites ...", end=" ")
+        self.conn.updateRelationsFromBuffer(nodes, W)
         print("Done.")

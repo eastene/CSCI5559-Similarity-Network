@@ -23,11 +23,18 @@ def avgDistToNeighbor(i):
     :return: 
     '''
 
-def measure(xi_N, xj_N, p_i_j):
-    mean_xi_N = sum(int(i[1]) for i in xi_N) / len(xi_N)
-    mean_xj_N = sum(int(j[1]) for j in xj_N) / len(xj_N)
-    mu = 0.5
-    epsilon = (mean_xi_N + mean_xj_N + p_i_j) / 3
-    W = math.exp(-(math.pow(p_i_j, 2)) / (mu * epsilon))
+def measure(distances):
 
+    # average each row
+    means = [sum(x) / len(x) for x in distances]
+    mu = 0.5
+    row = []
+    W = []
+    # compute similarities for each relation i -> j
+    for i in range(len(distances)):
+        # each row is 1 less than total nodes since a node is not related to itself
+        for j in range(i + 1, len(distances) - 1):
+            epsilon = (means[i] + means[j] + distances[i][j]) / 3
+            row.append(math.exp(-(math.pow(distances[i][j], 2)) / (mu * epsilon)))
+        W.append(row)
     return W

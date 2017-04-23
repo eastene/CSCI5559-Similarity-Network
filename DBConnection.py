@@ -67,7 +67,6 @@ class DBConnection:
                 "WHERE n.Patient_ID={pid1} AND m.Patient_ID={pid2} "
                 "CREATE (n)-[r:Similarity  { magnitude: {mag} }]->(m) "
                 "RETURN r", pid1=from_id, pid2=to_id, mag=measure)
-            tx.success = True
 
     def addRelationsFromBuffer(self, buffer):
         """
@@ -82,7 +81,7 @@ class DBConnection:
                        "WHERE n.Patient_ID={pid1} AND m.Patient_ID={pid2} "
                        "CREATE (n)-[r:Similarity  { magnitude: {mag} }]->(m) "
                        "RETURN r", pid1=rel[0], pid2=rel[1], mag=rel[2])
-            tx.success = True
+            tx.commit()
 
 
     def getPatient(self, pat_id):
@@ -135,18 +134,7 @@ class DBConnection:
                              " RETURN ID(m), r.magnitude ORDER BY ID(m)", id=pat_id).records()
             return list(results)
 
-    def getRelation(self, from_id, to_id):
-        """
-
-        :return: 
-        """
-        with self.session.begin_transaction() as tx:
-            # find the patients to relate using the given IDs
-            results = tx.run("MATCH (n:Patient {Patient_ID : {pid1} })-[r]-(m:Patient {Patient_ID : {pid2} })"
-                             " RETURN r", pid1=from_id, pid2=to_id).single()
-            return results
-
-    def updateRelation(self, from_id, to_id, val):
+    def updateRelationsFromBuffer(self, ids, W):
         """
         update a single relation in the database
         :param from_id: id for start of relation
@@ -156,7 +144,14 @@ class DBConnection:
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            results = tx.run("MATCH (n:Patient {Patient_ID : {pid1} })-[r]-(m:Patient {Patient_ID : {pid2} })"
-                             " SET r.magnitude = {value}"
-                             " RETURN r", pid1=from_id, pid2=to_id, value=val)
-            tx.success = True
+            for i in range(len(ids)):
+                for j in range(i+1, len(ids)):
+                    try:
+                        tx.run("MATCH (n:Patient {Patient_ID : {pid1} })-[r]-(m:Patient {Patient_ID : {pid2} })"
+                                 " SET r.magnitude = {value}"
+                                 " RETURN r", pid1=ids[i][0], pid2=ids[j][0], value=W[i][j - 1])
+                        # using j - 1 since each row in W excludes node i's relation to itself and is therefore always
+                        # one index behind the id list
+                    except IndexError:
+                        print(str(i) + " " + str(j))
+            tx.commit()
