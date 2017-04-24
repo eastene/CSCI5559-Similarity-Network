@@ -33,6 +33,8 @@ class Network:
         if self.verbose:
             print("Done.")
             print("Writing Similarities...", end=" ", flush=True)
-        self.conn.updateRelationsFromBuffer(nodes, W)
+        buffer = [{'from': nodes[i][0], 'to': nodes[j][0], 'mag': W[i][j]} for i in range(len(nodes)) for j in
+                  range(i + 1, len(nodes))]
+        self.conn.updateRelationsFromBuffer(buffer)
         if self.verbose:
             print("  Done.")

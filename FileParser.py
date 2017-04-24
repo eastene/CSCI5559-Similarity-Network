@@ -69,7 +69,9 @@ class FileParser:
             if self.verbose:
                 print(" Done.")
                 print("Writing Distances...", end=" ", flush=True)
-            self.conn.addRelationsFromBuffer(ids, distances, "Similarity 1")
+            buffer = [{'from': ids[i], 'to': ids[j], 'mag': distances[i][j]} for i in range(len(ids))
+                      for j in range(i + 1, len(ids))]
+            self.conn.addRelationsFromBuffer(buffer)
             self.files_read += 1
             if self.verbose:
                 print("     Done.")

@@ -69,7 +69,7 @@ class DBConnection:
                 "CREATE (n)-[r:Similarity  { magnitude: {mag} }]->(m) "
                 "RETURN r", pid1=from_id, pid2=to_id, mag=measure)
 
-    def addRelationsFromBuffer(self, ids, buffer, name):
+    def addRelationsFromBuffer(self, buffer):
         """
         create relations in bulk
         :param buffer: iterable container of relation tuples <from, to, value>
@@ -77,12 +77,11 @@ class DBConnection:
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            for i in range(len(ids)):
-                for j in range(i + 1, len(ids)):
-                    tx.run("MATCH (n:Patient), (m:Patient) "
-                           "WHERE n.Patient_ID={pid1} AND m.Patient_ID={pid2} "
-                           "CREATE (n)-[r:Similarity  { magnitude : {mag} }]->(m) "
-                           "RETURN r", pid1=ids[i], pid2=ids[j], mag=buffer[i][j])
+            tx.run("UNWIND $buffer AS b "
+                   "MATCH (n:Patient), (m:Patient) "
+                   "WHERE n.Patient_ID=b.from AND m.Patient_ID=b.to "
+                   "CREATE (n)-[r:Similarity  { magnitude : b.mag }]->(m) "
+                   "RETURN r", buffer=buffer)
             tx.commit()
 
 
@@ -136,7 +135,7 @@ class DBConnection:
                              " RETURN ID(m), r.magnitude ORDER BY ID(m)", id=pat_id).records()
             return list(results)
 
-    def updateRelationsFromBuffer(self, ids, W):
+    def updateRelationsFromBuffer(self, buffer):
         """
         update multiple existing relations
         :param ids: ids of nodes to update
@@ -145,12 +144,11 @@ class DBConnection:
         """
         with self.session.begin_transaction() as tx:
             # find the patients to relate using the given IDs
-            for i in range(len(ids)):
-                for j in range(i+1, len(ids)):
-                    tx.run("MATCH (n:Patient)-[r]-(m:Patient)"
-                           " WHERE ID(n) = {pid1} AND ID(m) = {pid2}"
-                           " SET r.magnitude = {value}"
-                           " RETURN r", pid1=ids[i][0], pid2=ids[j][0], value=W[i][j])
-                    # using j - 1 since each row in W excludes node i's relation to itself and is therefore always
-                    # one index behind the id list
+            tx.run("UNWIND $buffer AS b"
+                   " MATCH (n:Patient)-[r]-(m:Patient)"
+                   " WHERE ID(n) = b.from AND ID(m) = b.to"
+                   " SET r.magnitude = b.mag"
+                   " RETURN r", buffer=buffer)
+            # using j - 1 since each row in W excludes node i's relation to itself and is therefore always
+            # one index behind the id list
             tx.commit()
