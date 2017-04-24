@@ -37,13 +37,13 @@ class FileParser:
     def allocateNodes(self, fileName, delimiter):
         with open(fileName, 'r') as f_in:
             if self.verbose:
-                print("Parsing File 1 ...", end=' ', flush=True)
+                print("Parsing File 1...", end=' ', flush=True)
             # read csv in Dictionary format
             reader = csv.DictReader(f_in, delimiter=delimiter)
             # read in each node
             self.conn.allocatePatients(reader)
             if self.verbose:
-                print("Done.")
+                print("        Done.")
 
     def parseCreatorFile(self, fileName, delimiter):
         """
@@ -57,7 +57,7 @@ class FileParser:
         # new reader to measure the distances
         with open(fileName, 'r') as f_in:
             if self.verbose:
-                print("Calculating Distances ...", end=" ", flush=True)
+                print("Calculating Distances...", end=" ", flush=True)
             reader = csv.reader(f_in, delimiter=delimiter)
             # skip headers
             next(reader)
@@ -66,10 +66,13 @@ class FileParser:
             ids = [row[0] for row in patients]
             # wait until all new nodes are allocated
             task.join()
+            if self.verbose:
+                print(" Done.")
+                print("Writing Distances...", end=" ", flush=True)
             self.conn.addRelationsFromBuffer(ids, distances, "Similarity 1")
             self.files_read += 1
             if self.verbose:
-                print("Done.")
+                print("     Done.")
 
     def parseNewDataType(self, fileName, delimiter):
         """

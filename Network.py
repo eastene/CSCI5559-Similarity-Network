@@ -18,7 +18,7 @@ class Network:
         :return: none
         """
         if self.verbose:
-            print("Computing similarities ...", end=" ", flush=True)
+            print("Computing Similarities...", end=" ", flush=True)
         # 2d array to hold all distances
         distances = []
         # get list of patient ids
@@ -30,6 +30,9 @@ class Network:
         # compute the similarities
         W = Similarity.measure(distances)
         # write the similarities to disk
-        self.conn.updateRelationsFromBuffer(nodes, W)
         if self.verbose:
             print("Done.")
+            print("Writing Similarities...", end=" ", flush=True)
+        self.conn.updateRelationsFromBuffer(nodes, W)
+        if self.verbose:
+            print("  Done.")

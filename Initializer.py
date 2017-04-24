@@ -4,8 +4,6 @@ import FileParser, Network
 import argparse, sys, time
 
 def main():
-    t1 = time.time()
-
     # command line argument parser
     parser = argparse.ArgumentParser(description="Generate SNF using data provided in input files")
     parser.add_argument('-d', '--delimiter', action='store', required=False, default=',', help='For tabs use "tab"')
@@ -15,6 +13,8 @@ def main():
 
     args = parser.parse_args()
 
+    # start timer
+    t1 = time.time()
     # file parser
     f_parser = FileParser.FileParser(args.verbose)
     network = Network.Network(args.verbose)
@@ -38,7 +38,7 @@ def main():
     network.computeSimilarity()
 
     if args.verbose:
-        print("Delta: " + str((time.time() - t1) * 1000) + "ms")
+        print("\nDelta: " + str((time.time() - t1) * 1000) + " ms")
 
 if __name__ == '__main__':
     main()

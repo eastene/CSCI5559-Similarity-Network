@@ -138,10 +138,9 @@ class DBConnection:
 
     def updateRelationsFromBuffer(self, ids, W):
         """
-        update a single relation in the database
-        :param from_id: id for start of relation
-        :param to_id: id for end of relation
-        :param val: new value of relation
+        update multiple existing relations
+        :param ids: ids of nodes to update
+        :param W: new values in matrix (upper triangular)
         :return: none
         """
         with self.session.begin_transaction() as tx:
