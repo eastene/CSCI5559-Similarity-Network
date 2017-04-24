@@ -62,15 +62,13 @@ class FileParser:
             # skip headers
             next(reader)
             patients = [row for row in reader if row != []]
-            distances = Similarity.initialDistance(patients)
             ids = [row[0] for row in patients]
+            buffer = Similarity.initialDistance(ids, patients)
             # wait until all new nodes are allocated
             task.join()
             if self.verbose:
                 print(" Done.")
                 print("Writing Distances...", end=" ", flush=True)
-            buffer = [{'from': ids[i], 'to': ids[j], 'mag': distances[i][j]} for i in range(len(ids))
-                      for j in range(i + 1, len(ids))]
             self.conn.addRelationsFromBuffer(buffer)
             self.files_read += 1
             if self.verbose:

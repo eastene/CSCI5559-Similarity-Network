@@ -11,20 +11,22 @@ def distance(i, j):
     return math.sqrt(dist)
 
 
-def initialDistance(patients):
+def initialDistance(ids, patients):
     """
     euclidean distance between all patients in network
     :param patients: patient data
     :return: distance matrix (upper triangular)
     """
-    distances = [[0 for i in range(len(patients))] for j in range(len(patients))]
+    dist = 0
+    buffer = []
     for i in range(len(patients)):
         for j in range(i + 1, len(patients)):
-            distances[i][j] = distance(patients[i], patients[j])
-    return distances
+            dist = distance(patients[i], patients[j])
+            buffer.append({'from': ids[i], 'to': ids[j], 'mag': dist})
+    return buffer
 
 
-def measure(distances):
+def measure(ids, distances):
     """
     compute the similarity between all nodes
     :param distances: initial distances
@@ -33,12 +35,13 @@ def measure(distances):
     # average each row
     means = [sum(x) / len(x) for x in distances]
     mu = 0.5
-    W = [[0 for i in range(len(distances))] for j in range(len(distances))]
-
+    W = 0
+    buffer = []
     # compute similarities for each relation i -> j
     for i in range(len(distances) - 1):
         # each row is 1 less than total nodes since a node is not related to itself
         for j in range(i + 1, len(distances) - 1):
             epsilon = (means[i] + means[j] + distances[i][j]) / 3
-            W[i][j] = math.exp(-math.pow(distances[i][j], 2) / (mu * epsilon))
-    return W
+            W = math.exp(-math.pow(distances[i][j], 2) / (mu * epsilon))
+            buffer.append({'from': ids[i][0], 'to': ids[j][0], 'mag': W})
+    return buffer

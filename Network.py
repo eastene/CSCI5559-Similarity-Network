@@ -28,13 +28,11 @@ class Network:
             xi_N = self.conn.getPatientRelations(nodes[i][0])
             distances.append([x[1] for x in xi_N])
         # compute the similarities
-        W = Similarity.measure(distances)
+        buffer = Similarity.measure(nodes, distances)
         # write the similarities to disk
         if self.verbose:
             print("Done.")
             print("Writing Similarities...", end=" ", flush=True)
-        buffer = [{'from': nodes[i][0], 'to': nodes[j][0], 'mag': W[i][j]} for i in range(len(nodes)) for j in
-                  range(i + 1, len(nodes))]
         self.conn.updateRelationsFromBuffer(buffer)
         if self.verbose:
             print("  Done.")
