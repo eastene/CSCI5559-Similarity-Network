@@ -43,5 +43,5 @@ def measure(ids, distances):
         for j in range(i + 1, len(distances) - 1):
             epsilon = (means[i] + means[j] + distances[i][j]) / 3
             W = math.exp(-math.pow(distances[i][j], 2) / (mu * epsilon))
-            buffer.append({'from': ids[i][0], 'to': ids[j][0], 'mag': W})
+            buffer.append({'relID': ids[i][j], 'mag': W})
     return buffer

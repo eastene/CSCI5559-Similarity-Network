@@ -2,7 +2,6 @@
 
 import DBConnection, Similarity
 
-
 class Network:
 
     def __init__(self, verbose=False):
@@ -19,16 +18,18 @@ class Network:
         """
         if self.verbose:
             print("Computing Similarities...", end=" ", flush=True)
-        # 2d array to hold all distances
+        # 2d array to hold all distances and relations ids
         distances = []
+        ids = []
         # get list of patient ids
         nodes = self.conn.getSortedIDList()
         for i in range(len(nodes)):
             # compute average distance to neighbors for node i
             xi_N = self.conn.getPatientRelations(nodes[i][0])
-            distances.append([x[1] for x in xi_N])
+            distances.append([x[2] for x in xi_N])
+            ids.append([x[1] for x in xi_N])
         # compute the similarities
-        buffer = Similarity.measure(nodes, distances)
+        buffer = Similarity.measure(ids, distances)
         # write the similarities to disk
         if self.verbose:
             print("Done.")

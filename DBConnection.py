@@ -79,6 +79,7 @@ class DBConnection:
             # find the patients to relate using the given IDs
             tx.run("UNWIND $buffer AS b "
                    "MATCH (n:Patient), (m:Patient) "
+                   "USING INDEX n:Patient(Patient_ID) "
                    "WHERE n.Patient_ID=b.from AND m.Patient_ID=b.to "
                    "CREATE (n)-[r:Similarity  { magnitude : b.mag }]->(m) "
                    "RETURN r", buffer=buffer)
@@ -132,7 +133,7 @@ class DBConnection:
             # find the patients to relate using the given IDs
             results = tx.run("MATCH (n:Patient)-[r]-(m:Patient)"
                              " WHERE ID(n) = {id}"
-                             " RETURN ID(m), r.magnitude ORDER BY ID(m)", id=pat_id).records()
+                             " RETURN ID(m), ID(r), r.magnitude ORDER BY ID(m)", id=pat_id).records()
             return list(results)
 
     def updateRelationsFromBuffer(self, buffer):
@@ -146,7 +147,7 @@ class DBConnection:
             # find the patients to relate using the given IDs
             tx.run("UNWIND $buffer AS b"
                    " MATCH (n:Patient)-[r]-(m:Patient)"
-                   " WHERE ID(n) = b.from AND ID(m) = b.to"
+                   " WHERE ID(r) = b.relID"
                    " SET r.magnitude = b.mag"
                    " RETURN r", buffer=buffer)
             # using j - 1 since each row in W excludes node i's relation to itself and is therefore always
